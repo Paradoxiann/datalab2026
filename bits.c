@@ -19,7 +19,7 @@
  * Difficulty: 1
  */
 int bitAnd(int x, int y) {
-    return 2;
+    return ~(~x|~y);
 }
 
 /*
@@ -30,7 +30,7 @@ int bitAnd(int x, int y) {
  *   Difficulty: 1
  */
 int bitXor(int x, int y) {
-    return 2;
+    return  ~(x&y)&~(~x&~y);
 }
 
 /*
@@ -50,7 +50,21 @@ int bitXor(int x, int y) {
  *   1 if x and y have the same sign , 0 otherwise.
  */
 int samesign(int x, int y) {
-    return 2;
+    x_sig=x>>31;
+    y_sig=y>>31;
+    if (!x){
+        if(!y){
+            return 1;
+        }
+        return 0;
+    }
+    if(!y){
+        return 0;
+    }
+    return !(x_sig ^ y_sig)
+
+    // return !(x_sig ^ y_sig) && !(!x ^!y)
+
 }
 
 /*
@@ -63,7 +77,33 @@ int samesign(int x, int y) {
  *   Difficulty: 4
  */
 int logtwo(int v) {
-    return 2;
+    int step1=v>>16;
+    int judge1=(step1>0);
+    int cnt1=judge1<<4;
+    v=v>>cnt1;
+
+    int step2=v>>8;
+    int judge2=(step2>0);
+    int cnt2=judge2<<3;
+    v=v>>cnt2;
+
+    int step3=v>>4;
+    int judge3=(step3>0);
+    int cnt3=judge3<<2;
+    v=v>>(cnt3);
+
+    int step4=v>>2;
+    int judge4=(step4>0);
+    int cnt4=judge4<<1;
+    v=v>>(cnt4);
+
+    int step5=v>>1;
+    int judge5=(step5>0);
+    int cnt5=judge5;
+    // v=v>>judge5;
+
+    return cnt1 | cnt2 |cnt3 |cnt4| cnt5;
+
 }
 
 /*
