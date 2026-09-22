@@ -116,7 +116,17 @@ int logtwo(int v) {
  *    Difficulty: 2
  */
 int byteSwap(int x, int n, int m) {
-    return 2;
+    int st_n=n<<3; //n*8
+    int st_m=m<<3;
+    int byte_n=(x>>st_n)&0xFF;
+    int byte_m=(x>>st_m)&0xFF;
+    int mask=(255<<st_n) | (255<<st_m);    
+    int x_sol=(x & ~mask);
+    // int dif= byte_m ^ byte_n;
+    // int ans=x ^ (dif << st_n) ^(dif<<st_m);
+
+    int ans=x_sol | (byte_n<<st_m)|(byte_m<<st_n);    
+    return ans;
 }
 
 /*
@@ -128,7 +138,16 @@ int byteSwap(int x, int n, int m) {
  *   Difficulty: 3
  */
 unsigned reverse(unsigned v) {
-    return 2;
+    unsigned mark=31;
+    unsigned res=0;
+    while(mark){
+        res+=(1 & v) << mark;
+        mark=mark-1;
+        v=v>>1; 
+    }
+    res+=v;
+    return res;
+
 }
 
 /*
@@ -140,7 +159,10 @@ unsigned reverse(unsigned v) {
  *   Difficulty: 3
  */
 int logicalShift(int x, int n) {
-    return 2;
+    int temp=x>>n;
+    int mask=1<<(31+(~n+1));
+    return temp & mask;
+
 }
 
 /*
@@ -152,7 +174,30 @@ int logicalShift(int x, int n) {
  *   Difficulty: 4
  */
 int leftBitCount(int x) {
-    return 2;
+    x=~x;
+    int judge1=!(x>>16);
+    int cnt1=judge1<<4;
+    x=x>>((!judge1)<<4) ;
+
+    int judge2=!(x>>8);
+    int cnt2=judge2<<3;
+    x=x>>((!judge2)<<3);
+    
+    int judge3=!(x>>4);
+    int cnt3=judge3<<2;
+    x=x>>((!judge3)<<2);
+
+    int judge4=!(x>>2);
+    int cnt4=judge4<<1;
+    x=x>>((!judge4)<<1);
+
+    int judge5=!(x>>1);
+    int cnt5=judge5;
+
+
+    return cnt1 | cnt2 | cnt3 |cnt4 |cnt5 ;
+
+
 }
 
 /*
@@ -164,7 +209,66 @@ int leftBitCount(int x) {
  *   Difficulty: 4
  */
 unsigned float_i2f(int x) {
-    return 2;
+    //Note: LSB(Least Significant Bit)|guard|sticky
+    if (x==0){
+        return 0;
+    }
+
+    unsigned res=0;
+    unsigned absx;
+
+    if (x < 0){
+        res+=0x80000000;
+        absx=~x+1;
+    }
+    else{
+        absx=x;
+    }
+
+
+    int mark=0;
+
+    for(unsigned i=0x40000000;!(i&absx);i=i>>1){
+        mark=mark+1;
+    }
+
+    unsigned pow=30-mark;
+    unsigned bias=127;
+
+    res+=((pow+bias)<<23);
+    unsigned mask=(1<<pow)-1;
+    unsigned cover=mask & absx;
+    unsigned temp1=pow-24;
+    // unsigned temp2=pow-25;
+    unsigned add;
+    unsigned dump,add2,add3;
+    if (pow<24){
+        add=(cover<<(23-pow));
+    }else{
+        dump=cover&((1<<temp1)-1);
+        add2=cover>>temp1;
+        // add=add2;
+        if(add2 & 1){
+            add2=add2>>1;
+            add3=add2+1;
+            if(dump){      
+                add2=add3;
+            }else{
+                if(add2 & 1){
+                    add2=add3;
+                }
+            }
+        }else{
+            add2=add2>>1
+        }
+        add=add2;
+    }
+
+    return res+add;
+
+    
+
+
 }
 
 /*
@@ -179,7 +283,21 @@ unsigned float_i2f(int x) {
  *   Difficulty: 4
  */
 unsigned floatScale2(unsigned uf) {
-    return 2;
+    unsigned exp=uf &0x7F800000;
+    unsigned M=0x007FFFFF & uf;
+    unsigned sig=0x80000000 & uf;
+    if (exp>0x7F000000){
+        return uf;
+    }else if(exp>0){
+        if(exp==0x7F000000){
+            M=0;
+        }
+        exp=exp+0x00800000;
+    }else{
+        M=M<<1;
+    }
+    return sig | exp | M;
+
 }
 
 /*
