@@ -214,6 +214,7 @@ int leftBitCount(int x) {
  *   Max ops: 30
  *   Difficulty: 4
  */
+/*
 unsigned float_i2f(int x) {
     //Note: LSB(Least Significant Bit)|guard|sticky
     if (x==0){
@@ -278,6 +279,39 @@ unsigned float_i2f(int x) {
     
 
 
+}
+    */
+unsigned float_i2f(int x) {
+    if (x==0) {
+        return 0;
+    }
+
+    unsigned sign=x & 0x80000000;
+    unsigned absx=x;
+
+    if(sign) {
+        absx = ~absx + 1;
+    }
+
+    int mark = 0;
+    for(unsigned i=0x80000000;!(i & absx);i=i >> 1) {
+        mark=mark+1;
+    }
+
+    unsigned pow=31-mark;
+    unsigned norm=absx<<mark;
+    unsigned keep=norm>>8;
+    unsigned lost=norm&0xFF;
+
+    if(lost>0x80){
+        keep=keep + 1;
+    }else if(lost==0x80){
+        if(keep & 1) {
+            keep=keep + 1;
+        }
+    }
+
+    return sign+((pow+126) << 23)+keep;
 }
 
 /*
